@@ -1,0 +1,30 @@
+version: "3"
+
+tasks:
+  fmt:
+    desc: "Format code (gofumpt + import grouping, see .golangci.yml)"
+    cmd: golangci-lint fmt ./...
+
+  fmt:check:
+    desc: "Fail if any file is not formatted"
+    cmd: golangci-lint fmt --diff ./...
+
+  lint:
+    desc: "Run linter"
+    cmd: golangci-lint run ./...
+
+  lint:fix:
+    desc: "Run linter with auto-fix"
+    cmd: golangci-lint run --fix ./...
+
+  test:
+    desc: "Run tests with the race detector"
+    cmd: go test -race ./...
+
+  test:cover:
+    desc: "Run tests and report coverage per package"
+    cmd: go test -race -cover ./...
+
+  tidy:
+    desc: "Tidy go.mod and go.sum"
+    cmd: go mod tidy

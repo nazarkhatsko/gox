@@ -31,6 +31,7 @@ func openDB(t *testing.T) *sql.DB {
 
 func scanInt(sc Scanner) (int, error) {
 	var v int
+
 	err := sc.Scan(&v)
 
 	return v, err

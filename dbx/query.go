@@ -1,6 +1,9 @@
 package dbx
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // Scanner reads the current row: a *sql.Row or *sql.Rows.
 type Scanner interface {
@@ -53,5 +56,9 @@ func Each(ctx context.Context, q Querier, fn func(Scanner) error, query string, 
 		}
 	}
 
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("read rows: %w", err)
+	}
+
+	return nil
 }

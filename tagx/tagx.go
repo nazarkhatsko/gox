@@ -174,7 +174,11 @@ func check(f Field, value any) error {
 		return fmt.Errorf("%s: %v fails %s", f.Key, value, rule)
 	}
 
-	return err
+	if err != nil {
+		return fmt.Errorf("validate %q: %w", f.Rules, err)
+	}
+
+	return nil
 }
 
 // lookup returns the raw value of f: from raw, or its default (as a

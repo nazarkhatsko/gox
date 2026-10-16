@@ -1,0 +1,104 @@
+# golangci-lint v2 configuration.
+# Run with `task lint` (checks) and `task fmt` (formatting).
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # errcheck, govet, ineffassign, staticcheck, unused.
+  default: standard
+  enable:
+    # Correctness.
+    - bodyclose # HTTP response bodies are closed
+    - errorlint # errors are compared with errors.Is/As, wrapped with %w
+    - wrapcheck # errors from other packages are wrapped with context, never returned bare
+    - noctx # outgoing HTTP requests carry a context
+    - unconvert # no redundant type conversions
+    - misspell # common English misspellings in comments and strings
+
+    # Naming and docs: exported identifiers documented, receiver names consistent.
+    - revive
+
+    # Layout: blank line before return and between logical blocks.
+    - nlreturn
+    - wsl_v5
+
+  settings:
+    errcheck:
+      exclude-functions:
+        # Close errors on read paths and deferred cleanup carry no information.
+        - (io.Closer).Close
+        - (*os.File).Close
+        - (net.Listener).Close
+
+    errorlint:
+      # fmt.Errorf must wrap errors with %w, not format them with %v/%s.
+      errorf: true
+      errorf-multi: true
+
+    wrapcheck:
+      # Errors from the standard library and third-party packages must be
+      # wrapped with context where they enter gox. Errors from gox's own
+      # packages already carry context and pass through unchanged, so a
+      # message is not prefixed again at every layer.
+      ignore-package-globs:
+        - github.com/nazarkhatsko/gox/*
+      # Besides fmt.Errorf/errors.New (the defaults), these constructors wrap
+      # or classify an error and count as wrapping.
+      extra-ignore-sigs:
+        - errs.NotFound(
+        - errs.Invalid(
+        - errs.New(
+        - errs.Newf(
+
+    nlreturn:
+      # A return that is the only statement of its block needs no blank line.
+      block-size: 1
+
+    revive:
+      rules:
+        - name: exported
+          arguments:
+            - disableStutteringCheck # e.g. httpx.Request, errs.New are intended
+        - name: receiver-naming
+        - name: var-naming
+        - name: error-naming
+        - name: error-strings
+        - name: indent-error-flow
+        - name: package-comments
+
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Tests may ignore errors and skip docs.
+      - path: _test\.go
+        linters:
+          - errcheck
+          - revive
+          - wrapcheck
+
+formatters:
+  enable:
+    - gofumpt # stricter gofmt
+    - gci # import grouping
+
+  settings:
+    gofumpt:
+      extra:
+        # func(a string, b string) -> func(a, b string)
+        group-params: true
+
+    gci:
+      # std, then third-party, then this module.
+      sections:
+        - standard
+        - default
+        - localmodule
+
+issues:
+  # Report everything instead of the first 50 per linter / 3 of a kind.
+  max-issues-per-linter: 0
+  max-same-issues: 0

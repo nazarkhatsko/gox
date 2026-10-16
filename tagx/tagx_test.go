@@ -55,7 +55,7 @@ func TestFieldsBadTags(t *testing.T) {
 	}
 
 	type badRule struct {
-		X string `key:"x" validate:"requred"`
+		X string `key:"x" validate:"requred"` //nolint:misspell // an unknown rule on purpose
 	}
 
 	type badValidatorRule struct {
@@ -238,6 +238,7 @@ func TestDecodeNested(t *testing.T) {
 
 func TestEncode(t *testing.T) {
 	var r response
+
 	r.Status = 404
 	r.Body.ID = 1
 
