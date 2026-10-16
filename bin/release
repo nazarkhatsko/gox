@@ -1,0 +1,59 @@
+#!/bin/sh
+# Checks the code, tags a version and pushes main with the tag.
+#
+#	bin/release          # asks for the version
+#	bin/release v1.2.3
+set -e
+
+if [ -t 1 ]; then
+	green=$(printf '\033[32m') red=$(printf '\033[31m') dim=$(printf '\033[2m') reset=$(printf '\033[0m')
+else
+	green='' red='' dim='' reset=''
+fi
+
+fail() {
+	echo "${red}✗${reset} $*" >&2
+	exit 1
+}
+
+# step runs a command quietly and prints its output only if it fails.
+step() {
+	label=$1
+	shift
+
+	printf '%-14s' "$label"
+	if out=$("$@" 2>&1); then
+		echo "${green}✓${reset}"
+	else
+		echo "${red}✗${reset}"
+		echo "$out" >&2
+		exit 1
+	fi
+}
+
+[ "$(git branch --show-current)" = main ] || fail "release from the main branch"
+[ -z "$(git status --porcelain)" ] || fail "commit or stash your changes first"
+
+step "Format" task fmt:check
+step "Lint" task lint
+step "Tests" task test
+
+version=$1
+if [ -z "$version" ]; then
+	last=$(git describe --tags --abbrev=0 2>/dev/null || echo none)
+	echo
+	printf 'Version %s(last: %s)%s: ' "$dim" "$last" "$reset"
+	read -r version
+fi
+
+echo "$version" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' ||
+	fail "invalid version \"$version\": want vX.Y.Z or vX.Y.Z-pre"
+! git rev-parse -q --verify "refs/tags/$version" >/dev/null ||
+	fail "tag $version already exists"
+
+echo
+step "Tag $version" git tag -a "$version" -m "$version"
+step "Push" git push --atomic origin main "$version"
+
+echo
+echo "${green}Released $version${reset}"
