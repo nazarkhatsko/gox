@@ -32,6 +32,10 @@ tasks:
     desc: "Tidy go.mod and go.sum"
     cmd: go mod tidy
 
+  hooks:
+    desc: "Enable git hooks from .githooks (format and lint before each commit)"
+    cmd: git config core.hooksPath .githooks
+
   release:
     desc: "Check, tag and push a version (usage: task release, or task release -- v1.2.3)"
     interactive: true

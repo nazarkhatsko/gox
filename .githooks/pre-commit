@@ -1,0 +1,12 @@
+#!/bin/sh
+# Formats the code and runs the linter before each commit.
+# Enable with `task hooks`; skip once with `git commit --no-verify`.
+set -e
+
+if ! task fmt:check >/dev/null 2>&1; then
+	task fmt
+	echo "pre-commit: files were reformatted; review and stage them, then commit again" >&2
+	exit 1
+fi
+
+task lint
