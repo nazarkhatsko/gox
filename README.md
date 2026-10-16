@@ -10,6 +10,9 @@ go get github.com/nazarkhatsko/gox
 
 | Package | Description |
 | --- | --- |
+| [`dbx`](dbx) | Less repetitive `database/sql`: one querier interface, transactions as closures, generic `Get`/`Select`, column type conversions. |
+| [`errs`](errs) | Error kinds: classify failures with `errors.Is`, map kinds to transport codes. |
 | [`httpx`](httpx) | HTTP client for calling APIs: shared connection pool, default timeout, JSON bodies, whole-body responses. |
+| [`tagx`](tagx) | Binds a map of options to a struct via `key`, `default`, `description` and `validate` tags. |
 
-Packages depend only on the standard library unless stated otherwise.
+Packages depend only on the standard library, except `tagx` (go-playground/validator). `dbx` tests use modernc.org/sqlite.
