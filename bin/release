@@ -53,7 +53,10 @@ echo "$version" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' ||
 
 echo
 step "Tag $version" git tag -a "$version" -m "$version"
+# A tag that never reached the remote is removed, so the release can be retried.
+trap 'git tag -d "$version" >/dev/null' EXIT
 step "Push" git push --atomic origin main "$version"
+trap - EXIT
 
 echo
 echo "${green}Released $version${reset}"
