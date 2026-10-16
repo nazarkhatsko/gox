@@ -16,14 +16,18 @@ step() {
 	label=$1
 	shift
 
-	printf '%-14s' "$label"
 	if out=$("$@" 2>&1); then
-		echo "${green}✓${reset}"
+		status "$label" "${green}✓${reset}"
 	else
-		echo "${red}✗${reset}"
+		status "$label" "${red}✗${reset}"
 		echo "$out" >&2
 		exit 1
 	fi
+}
+
+# status prints a step's label and its mark, aligned.
+status() {
+	printf '%-14s%s\n' "$1" "$2"
 }
 
 # require_clean fails when the working tree has changes, so checks run on
