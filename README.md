@@ -10,12 +10,13 @@ go get github.com/nazarkhatsko/gox
 
 | Package | Description |
 | --- | --- |
+| [`console`](console) | Human-facing CLI output: ✓/✗/! status lines, hints, key/value blocks, borderless tables; colors from a palette, off when not a terminal or `NO_COLOR` is set. |
 | [`dbx`](dbx) | Less repetitive `database/sql`: one querier interface, transactions as closures, generic `Get`/`Select`, column type conversions. |
 | [`errs`](errs) | Error kinds: classify failures with `errors.Is`, map kinds to transport codes. |
 | [`httpx`](httpx) | HTTP client for calling APIs: shared connection pool, default timeout, JSON bodies, whole-body responses. |
-| [`tagx`](tagx) | Binds a map of options to a struct via `key`, `default`, `description` and `validate` tags. |
+| [`tag`](tag) | Binds a map of options to a struct via `key`, `default`, `description` and `validate` tags. |
 
-Packages depend only on the standard library, except `tagx` (go-playground/validator). `dbx` tests use modernc.org/sqlite.
+Packages depend only on the standard library, except `console` (charmbracelet/lipgloss) and `tag` (go-playground/validator). `dbx` tests use modernc.org/sqlite.
 
 ## Development
 

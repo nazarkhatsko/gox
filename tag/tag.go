@@ -1,4 +1,4 @@
-// Package tagx binds a map of options (a connection's config, an action's
+// Package tag binds a map of options (a connection's config, an action's
 // with) to a struct, as its field tags describe:
 //
 //	type Config struct {
@@ -7,7 +7,7 @@
 //		KeyFile    string `key:"credentials_file" validate:"required"`
 //	}
 //
-//	cfg, err := tagx.Decode[Config](raw)
+//	cfg, err := tag.Decode[Config](raw)
 //
 // Tags:
 //
@@ -19,13 +19,13 @@
 //   - default: the value when the option is absent (not for map, list, any)
 //   - validate: comma-separated rules of github.com/go-playground/validator
 //     (min=1, max=10, oneof=a b, url, email, ...), checked on the decoded
-//     value when the option is set. "required" is tagx's own: the option
+//     value when the option is set. "required" is tag's own: the option
 //     must be set — in the map or by default — so an explicit 0 or false
 //     counts. Cross-field rules (required_if, eqfield, ...) are not
 //     supported: each option is checked alone.
 //
 // Fields lists the options for validation and docs.
-package tagx
+package tag
 
 import (
 	"errors"
@@ -197,7 +197,7 @@ func lookup(f Field, raw map[string]any) (any, bool) {
 
 func fieldsOf(t reflect.Type) ([]Field, error) {
 	if t.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("tagx: %s is not a struct", t)
+		return nil, fmt.Errorf("tag: %s is not a struct", t)
 	}
 
 	var fields []Field
@@ -212,7 +212,7 @@ func fieldsOf(t reflect.Type) ([]Field, error) {
 
 		f, err := fieldOf(sf, key)
 		if err != nil {
-			return nil, fmt.Errorf("tagx: %s.%s: %w", t, sf.Name, err)
+			return nil, fmt.Errorf("tag: %s.%s: %w", t, sf.Name, err)
 		}
 
 		fields = append(fields, f)

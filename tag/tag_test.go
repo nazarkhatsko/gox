@@ -1,4 +1,4 @@
-package tagx
+package tag
 
 import (
 	"fmt"
