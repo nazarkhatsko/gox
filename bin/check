@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs every check the code must pass: format, lint and tests.
+set -e
+. "$(dirname "$0")/lib.sh"
+
+step "Format" task fmt:check
+step "Lint" task lint
+step "Tests" task test

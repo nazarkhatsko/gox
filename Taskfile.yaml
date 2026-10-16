@@ -32,8 +32,12 @@ tasks:
     desc: "Tidy go.mod and go.sum"
     cmd: go mod tidy
 
+  check:
+    desc: "Run format check, lint and tests, as before push, release and in CI"
+    cmd: ./bin/check
+
   hooks:
-    desc: "Enable git hooks from .githooks (format and lint before each commit)"
+    desc: "Enable git hooks from .githooks (format on commit; lint and test on push)"
     cmd: git config core.hooksPath .githooks
 
   release:

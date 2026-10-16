@@ -5,38 +5,12 @@
 #	bin/release v1.2.3
 set -e
 
-if [ -t 1 ]; then
-	green=$(printf '\033[32m') red=$(printf '\033[31m') dim=$(printf '\033[2m') reset=$(printf '\033[0m')
-else
-	green='' red='' dim='' reset=''
-fi
-
-fail() {
-	echo "${red}✗${reset} $*" >&2
-	exit 1
-}
-
-# step runs a command quietly and prints its output only if it fails.
-step() {
-	label=$1
-	shift
-
-	printf '%-14s' "$label"
-	if out=$("$@" 2>&1); then
-		echo "${green}✓${reset}"
-	else
-		echo "${red}✗${reset}"
-		echo "$out" >&2
-		exit 1
-	fi
-}
+. "$(dirname "$0")/lib.sh"
 
 [ "$(git branch --show-current)" = main ] || fail "release from the main branch"
-[ -z "$(git status --porcelain)" ] || fail "commit or stash your changes first"
+require_clean
 
-step "Format" task fmt:check
-step "Lint" task lint
-step "Tests" task test
+"$(dirname "$0")/check"
 
 version=$1
 if [ -z "$version" ]; then
@@ -55,7 +29,8 @@ echo
 step "Tag $version" git tag -a "$version" -m "$version"
 # A tag that never reached the remote is removed, so the release can be retried.
 trap 'git tag -d "$version" >/dev/null' EXIT
-step "Push" git push --atomic origin main "$version"
+# The checks above already ran, so the pre-push hook is skipped.
+step "Push" git push --atomic --no-verify origin main "$version"
 trap - EXIT
 
 echo

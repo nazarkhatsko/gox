@@ -22,7 +22,15 @@ Packages depend only on the standard library, except `tagx` (go-playground/valid
 Tasks run with [Task](https://taskfile.dev): `task --list` shows them all.
 
 ```sh
-task hooks    # once per clone: format and lint before each commit
-task test     # run tests with the race detector
+task hooks    # once per clone: enable the git hooks below
+task check    # format check, lint and tests
 task release  # check, tag and push a version
 ```
+
+Checks run at three points:
+
+| When | What |
+| --- | --- |
+| `git commit` | format (files are fixed, then the commit stops for review) |
+| `git push`, `task release` | format check, lint, tests; the working tree must be clean |
+| CI, on every push and pull request | format check, lint, tests; a `v*` tag also gets a GitHub release |
