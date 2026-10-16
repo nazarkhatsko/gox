@@ -28,3 +28,36 @@ tasks:
   tidy:
     desc: "Tidy go.mod and go.sum"
     cmd: go mod tidy
+
+  release:
+    desc: "Check, tag and push a version (usage: task release, or task release -- v1.2.3)"
+    interactive: true
+    preconditions:
+      - sh: test "$(git branch --show-current)" = main
+        msg: "Release from the main branch"
+      - sh: test -z "$(git status --porcelain)"
+        msg: "Commit or stash your changes first"
+    cmds:
+      - task: fmt:check
+      - task: lint
+      - task: test
+      - |
+        version="{{.CLI_ARGS}}"
+        if [ -z "$version" ]; then
+          printf "Last tag: %s\n" "$(git describe --tags --abbrev=0 2>/dev/null || echo none)"
+          printf "Version (vX.Y.Z): "
+          read -r version
+        fi
+
+        if ! echo "$version" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+          echo "Invalid version \"$version\": want vX.Y.Z or vX.Y.Z-pre" >&2
+          exit 1
+        fi
+
+        if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+          echo "Tag $version already exists" >&2
+          exit 1
+        fi
+
+        git tag -a "$version" -m "$version"
+        git push --atomic origin main "$version"
