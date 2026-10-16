@@ -1,9 +1,31 @@
 #!/bin/sh
-# Runs format, lint and tests before each push, branches and tags alike.
+# Runs format, lint and tests on every commit being pushed, branches and tags
+# alike. Each commit is checked out on its own, so local changes don't count.
 # Enable with `task init`; skip once with `git push --no-verify`.
 set -e
 root=$(git rev-parse --show-toplevel)
 . "$root/bin/lib.sh"
 
-require_clean
-"$root/bin/check"
+# Each stdin line is "<local ref> <local sha> <remote ref> <remote sha>".
+commits=''
+while read -r _ sha _ _; do
+	case $sha in *[!0]*) ;; *) continue ;; esac # a deleted remote ref
+
+	commit=$(git rev-parse -q --verify "$sha^{commit}") || continue
+	case " $commits " in *" $commit "*) ;; *) commits="$commits $commit" ;; esac
+done
+[ -n "$commits" ] || exit 0
+
+require_tools go task golangci-lint
+
+# Worktrees go under one temporary folder; deleting it and pruning cleans up
+# after both success and failure.
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"; git -C "$root" worktree prune' EXIT
+
+for commit in $commits; do
+	echo "${dim}$(git log -1 --format='%h %s' "$commit")${reset}"
+
+	git worktree add -q --detach "$tmp/$commit" "$commit"
+	(cd "$tmp/$commit" && "$root/bin/check")
+done

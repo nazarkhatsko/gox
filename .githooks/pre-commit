@@ -1,16 +1,54 @@
 #!/bin/sh
-# Formats the code before each commit. Lint and tests run before push.
+# Checks that the staged Go files parse and are formatted, as they will be
+# committed. Fully staged files are formatted in place for review; lint and
+# tests run before push.
 # Enable with `task init`; skip once with `git commit --no-verify`.
 set -e
 root=$(git rev-parse --show-toplevel)
-. "$root/bin/lib.sh"
+cd "$root"
+. bin/lib.sh
 
-if task fmt:check >/dev/null 2>&1; then
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.go')
+[ -n "$files" ] || exit 0
+
+require_tools gofmt golangci-lint
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+broken='' unformatted=''
+for f in $files; do
+	git show ":$f" >"$tmp/staged"
+
+	if ! err=$(gofmt -e "$tmp/staged" 2>&1 >/dev/null); then
+		broken="$broken$(echo "$err" | sed "s|$tmp/staged|$f|")
+"
+		continue
+	fi
+
+	golangci-lint fmt --stdin <"$tmp/staged" >"$tmp/formatted" 2>/dev/null
+	cmp -s "$tmp/staged" "$tmp/formatted" || unformatted="$unformatted $f"
+done
+
+if [ -n "$broken" ]; then
+	status "Format" "${red}✗${reset}"
+	printf '%s' "$broken" >&2
+	fail "fix the syntax errors, then commit again"
+fi
+
+if [ -z "$unformatted" ]; then
 	status "Format" "${green}✓${reset}"
 	exit 0
 fi
 
-task fmt >/dev/null 2>&1
 status "Format" "${red}✗${reset}"
-git diff --name-only | sed 's/^/  /' >&2
-fail "files were reformatted; review and stage them, then commit again"
+for f in $unformatted; do
+	if git diff --quiet -- "$f"; then
+		golangci-lint fmt "$f"
+		echo "  $f: formatted" >&2
+	else
+		# Formatting it would mix in the unstaged changes.
+		echo "  $f: has unstaged changes; format it and stage it yourself" >&2
+	fi
+done
+fail "review and stage the formatted files, then commit again"

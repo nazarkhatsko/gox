@@ -32,13 +32,13 @@ tasks:
     desc: "Tidy go.mod and go.sum"
     cmd: go mod tidy
 
-  check:
-    desc: "Run format check, lint and tests, as before push, release and in CI"
-    cmd: ./bin/check
-
   init:
     desc: "Prepare a fresh clone: check tools, download modules, enable git hooks"
     cmd: ./bin/init
+
+  check:
+    desc: "Run format check, lint and tests, as before push, release and in CI"
+    cmd: ./bin/check
 
   release:
     desc: "Check, tag and push a version (usage: task release, or task release -- v1.2.3)"

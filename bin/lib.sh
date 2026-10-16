@@ -35,3 +35,10 @@ status() {
 require_clean() {
 	[ -z "$(git status --porcelain)" ] || fail "commit or stash your changes first"
 }
+
+# require_tools fails on the first tool that is not installed.
+require_tools() {
+	for tool; do
+		command -v "$tool" >/dev/null || fail "$tool is not installed"
+	done
+}
