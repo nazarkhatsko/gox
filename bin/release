@@ -10,6 +10,29 @@ set -e
 [ "$(git branch --show-current)" = main ] || fail "release from the main branch"
 require_clean
 
+# in_sync fails when main is behind or has diverged from the remote's main,
+# so the push at the end can't be rejected. Being ahead is fine: those
+# commits go out with the tag. A remote without main yet counts as in sync.
+in_sync() {
+	if ! err=$(git fetch -q origin main 2>&1); then
+		case $err in *"couldn't find remote ref"*) return 0 ;; esac
+		echo "$err"
+
+		return 1
+	fi
+
+	git merge-base --is-ancestor FETCH_HEAD main && return 0
+
+	if git merge-base --is-ancestor main FETCH_HEAD; then
+		echo "main is behind origin/main: pull first"
+	else
+		echo "main has diverged from origin/main: rebase or merge first"
+	fi
+
+	return 1
+}
+
+step "Sync" in_sync
 "$(dirname "$0")/check"
 
 version=$1
