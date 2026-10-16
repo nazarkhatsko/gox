@@ -14,9 +14,9 @@ go get github.com/nazarkhatsko/gox
 | [`dbx`](dbx) | Less repetitive `database/sql`: one querier interface, transactions as closures, generic `Get`/`Select`, column type conversions. |
 | [`errs`](errs) | Error kinds: classify failures with `errors.Is`, map kinds to transport codes. |
 | [`httpx`](httpx) | HTTP client for calling APIs: shared connection pool, default timeout, JSON bodies, whole-body responses. |
-| [`tag`](tag) | Binds a map of options to a struct via `key`, `default`, `description` and `validate` tags. |
+| [`tagx`](tagx) | Binds a map of options to a struct via `key`, `default`, `description` and `validate` tags. |
 
-Packages depend only on the standard library, except `console` (charmbracelet/lipgloss) and `tag` (go-playground/validator). `dbx` tests use modernc.org/sqlite.
+Packages depend only on the standard library, except `console` (charmbracelet/lipgloss) and `tagx` (go-playground/validator). `dbx` tests use modernc.org/sqlite.
 
 ## Development
 
