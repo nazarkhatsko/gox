@@ -1,0 +1,14 @@
+#!/bin/sh
+# Prepares a fresh clone: checks the tools, downloads modules and enables
+# the git hooks (format on commit; lint and test on push).
+set -e
+cd "$(dirname "$0")/.."
+. bin/lib.sh
+
+for tool in go task golangci-lint; do
+	command -v "$tool" >/dev/null || fail "$tool is not installed"
+done
+status "Tools" "${green}✓${reset}"
+
+step "Modules" go mod download
+step "Git hooks" git config core.hooksPath .githooks

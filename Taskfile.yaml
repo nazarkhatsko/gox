@@ -36,9 +36,9 @@ tasks:
     desc: "Run format check, lint and tests, as before push, release and in CI"
     cmd: ./bin/check
 
-  hooks:
-    desc: "Enable git hooks from .githooks (format on commit; lint and test on push)"
-    cmd: git config core.hooksPath .githooks
+  init:
+    desc: "Prepare a fresh clone: check tools, download modules, enable git hooks"
+    cmd: ./bin/init
 
   release:
     desc: "Check, tag and push a version (usage: task release, or task release -- v1.2.3)"

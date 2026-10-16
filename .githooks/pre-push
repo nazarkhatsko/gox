@@ -1,6 +1,6 @@
 #!/bin/sh
 # Runs format, lint and tests before each push, branches and tags alike.
-# Enable with `task hooks`; skip once with `git push --no-verify`.
+# Enable with `task init`; skip once with `git push --no-verify`.
 set -e
 root=$(git rev-parse --show-toplevel)
 . "$root/bin/lib.sh"

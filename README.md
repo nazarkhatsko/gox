@@ -22,7 +22,7 @@ Packages depend only on the standard library, except `tagx` (go-playground/valid
 Tasks run with [Task](https://taskfile.dev): `task --list` shows them all.
 
 ```sh
-task hooks    # once per clone: enable the git hooks below
+task init     # once per clone: check tools, download modules, enable the git hooks
 task check    # format check, lint and tests
 task release  # check, tag and push a version
 ```
